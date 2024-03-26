@@ -1,4 +1,5 @@
 numpy
 matplotlib
 slackclient
+discord.py==2.3.2
 boto3

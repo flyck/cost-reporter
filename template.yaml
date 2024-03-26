@@ -1,4 +1,4 @@
-AWSTemplateFormatVersion: '2010-09-09'
+AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
 Description: SAM Template for cost-reporter
 
@@ -10,6 +10,9 @@ Parameters:
   SlackTokenParameterName:
     Type: String
     Default: "/cost-reporter/slack-token"
+  DiscordWebhookParameterName:
+    Type: String
+    Default: "/cost-reporter/discord-webhook"
   Title:
     Type: String
     Default: "Cost Report"
@@ -34,7 +37,6 @@ Parameters:
     Default: "#ohtru"
     Description: "The target slack channel"
 
-
 #-----------------------------------------------------
 # Resources
 #-----------------------------------------------------
@@ -54,7 +56,8 @@ Resources:
           MIN_DAILY_COST: !Ref MinDailyCost
           ONLY_NOTIFY_ON_INCREASE: !Ref OnlyNotifyOnIncrease
           TARGET_CHANNEL: !Ref TargetChannel
-          SLACK_TOKEN_PARAMETER:  !Ref SlackTokenParameterName
+          SLACK_TOKEN_PARAMETER: !Ref SlackTokenParameterName
+          DISCORD_WEBHOOK_PARAMETER: !Ref DiscordWebhookParameterName
     Metadata:
       BuildMethod: makefile
 
@@ -73,31 +76,29 @@ Resources:
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
       Policies:
-        -
-          PolicyName: "CostReporterLambdaRole"
+        - PolicyName: "CostReporterLambdaRole"
           PolicyDocument:
             Version: "2012-10-17"
             Statement:
-               -
-                 Sid: "CostExplorer"
-                 Effect: "Allow"
-                 Action: "ce:GetCostAndUsage"
-                 Resource: "*"
-               -
-                 Sid: "ParameterStore"
-                 Effect: "Allow"
-                 Action: "ssm:GetParameter"
-                 Resource: !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter${SlackTokenParameterName}"
+              - Sid: "CostExplorer"
+                Effect: "Allow"
+                Action: "ce:GetCostAndUsage"
+                Resource: "*"
+              - Sid: "ParameterStore"
+                Effect: "Allow"
+                Action: "ssm:GetParameter"
+                Resource:
+                  - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter${SlackTokenParameterName}"
+                  - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter${DiscordWebhookParameterName}"
 
   CWEventsRule:
     Type: AWS::Events::Rule
     Properties:
       ScheduleExpression: "cron(0 17 * * ? *)"
-      State:  "ENABLED"
+      State: "ENABLED"
       Targets:
-      -
-        Arn: !GetAtt CostReporterLambda.Arn
-        Id: CostReporterLambda
+        - Arn: !GetAtt CostReporterLambda.Arn
+          Id: CostReporterLambda
 
   permissionForEventsToInvokeLambda:
     Type: AWS::Lambda::Permission
