@@ -19,14 +19,4 @@ The following settings can be configured:
 
 ## Deployment
 
-Prerequisites:
-- [AWS SAM CLI](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-install.html)
-- A slack token for the lambda (`xoxx-....`) with the permission to write files and send messages
-- A `SecureString` SSM Parameter for the Slack token: `/cost-reporter/slack-token`
-
-How to deploy:
-
-```bash
-sam build --use-container
-sam deploy --guided
-```
+TODO add sst ion docs
