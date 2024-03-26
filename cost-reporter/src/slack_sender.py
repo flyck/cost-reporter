@@ -5,12 +5,7 @@ import slack
 
 
 def get_token() -> str:
-    ssm = boto3.client("ssm")
-
-    return ssm.get_parameter(
-        Name=os.environ["SLACK_TOKEN_PARAMETER"],
-        WithDecryption=True
-    )["Parameter"]["Value"]
+    return os.environ["SLACK_TOKEN"]
 
 
 def send_image(filename: str, slack_channel: str) -> None:
