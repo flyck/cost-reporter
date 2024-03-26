@@ -4,9 +4,11 @@ from datetime import datetime, timedelta
 from typing import Dict, List, Tuple
 
 import boto3
+import asyncio
 
 import slack_sender
 import stacked_bar
+import discord_sender
 
 
 def get_daily_cost() -> Dict[str, List[float]]:
@@ -120,7 +122,7 @@ def compile_graph_data(daily_cost: Dict[str, List[float]], highest_spenders: Lis
     return graph_data
 
 
-def lambda_handler(event: Dict, _) -> None:
+async def create_stuff():
     # Configure logging
     level = os.environ.get("LOG_LEVEL", "INFO")
     logging.getLogger().setLevel(level)
@@ -138,7 +140,19 @@ def lambda_handler(event: Dict, _) -> None:
 
     # Send the report if necessary
     if trigger_notification(graph_data):
-        logging.info("Sending message")
-        slack_sender.send_image("/tmp/image.png", os.environ["TARGET_CHANNEL"])
+        logging.info("Sending message(s)")
+        if (os.getenv("SLACK_TOKEN_PARAMETER")):
+            slack_sender.send_image("/tmp/image.png", os.environ["TARGET_CHANNEL"])
+        if (os.getenv("DISCORD_WEBHOOK_PARAMETER")):
+            await discord_sender.send_image("/tmp/image.png")
+            logging.info("Image send")
     else:
         logging.info("Not sending the message due to trigger configuration.")
+
+def lambda_handler(event, context):
+    async def main():
+        await create_stuff()
+
+    # Create an event loop and run the asynchronous operation within it
+    loop = asyncio.get_event_loop()
+    return loop.run_until_complete(main())
