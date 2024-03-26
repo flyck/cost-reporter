@@ -5,12 +5,12 @@ help:
 
 build-CostReporterLambda: ## Build command for SAM
 	cp src/*.py $(ARTIFACTS_DIR)
-	python3 -m pip install -r requirements.txt -t $(ARTIFACTS_DIR)
+	python3.12 -m pip install -r requirements.txt -t $(ARTIFACTS_DIR)
 	rm -rf $(ARTIFACTS_DIR)/bin
 
 # SAM fails if we create the virtualenv in this directory
 init: ## Create a virtual environment
-	python3 -m venv ../.venv
+	python3.12 -m venv ../.venv
 
 install: ## Install all dependencies
 	. ../.venv/bin/activate; \
