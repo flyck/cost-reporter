@@ -9,6 +9,8 @@ export default $config({
     };
   },
   async run() {
+    // TODO add scheduled trigger
+
     new sst.aws.Function("Reporter", {
       handler: "lambda_function.lambda_handler",
       timeout: "30 seconds",
