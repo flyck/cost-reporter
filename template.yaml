@@ -24,10 +24,7 @@ Parameters:
     Description: "The minimal daily cost to trigger a report"
   OnlyNotifyOnIncrease:
     Type: String
-    AllowedValues:
-      - true
-      - false
-    Default: true
+    Default: "True"
     Description: "Whether to only notify if cost increased within the last day"
   TargetChannel:
     Type: String
