@@ -10,6 +10,9 @@ Parameters:
   SlackTokenParameterName:
     Type: String
     Default: "/cost-reporter/slack-token"
+  DiscordWebhookParameterName:
+    Type: String
+    Default: "/cost-reporter/discord-webhook"
   Title:
     Type: String
     Default: "Cost Report"
@@ -29,10 +32,10 @@ Parameters:
       - false
     Default: true
     Description: "Whether to only notify if cost increased within the last day"
-  TargetChannel:
+  SlackTargetChannel:
     Type: String
     Default: "#ohtru"
-    Description: "The target slack channel"
+    Description: "The target Slack channel"
 
 
 #-----------------------------------------------------
@@ -53,8 +56,9 @@ Resources:
           DAYS: !Ref Days
           MIN_DAILY_COST: !Ref MinDailyCost
           ONLY_NOTIFY_ON_INCREASE: !Ref OnlyNotifyOnIncrease
-          TARGET_CHANNEL: !Ref TargetChannel
-          SLACK_TOKEN_PARAMETER:  !Ref SlackTokenParameterName
+          SLACK_TARGET_CHANNEL: !Ref SlackTargetChannel
+          SLACK_TOKEN_PARAMETER: !Ref SlackTokenParameterName
+          DISCORD_WEBHOOK_PARAMETER: !Ref DiscordWebhookParameterName
     Metadata:
       BuildMethod: makefile
 
@@ -87,7 +91,9 @@ Resources:
                  Sid: "ParameterStore"
                  Effect: "Allow"
                  Action: "ssm:GetParameter"
-                 Resource: !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter${SlackTokenParameterName}"
+                 Resource:
+                   - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter${SlackTokenParameterName}"
+                   - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter${DiscordWebhookParameterName}"
 
   CWEventsRule:
     Type: AWS::Events::Rule

@@ -5,6 +5,7 @@ from typing import Dict, List, Tuple
 
 import boto3
 
+import discord_sender
 import slack_sender
 import stacked_bar
 
@@ -136,9 +137,19 @@ def lambda_handler(event: Dict, _) -> None:
     stacked_bar.draw_bars(graph_data, f"{os.environ['TITLE']} (last {os.environ['DAYS']} days)")
     logging.info("Graph generated")
 
-    # Send the report if necessary
-    if trigger_notification(graph_data):
-        logging.info("Sending message")
-        slack_sender.send_image("/tmp/image.png", os.environ["TARGET_CHANNEL"])
-    else:
+    if not trigger_notification(graph_data):
         logging.info("Not sending the message due to trigger configuration.")
+        return
+
+    logging.info("Sending message")
+    title = f"{os.environ['TITLE']} (last {os.environ['DAYS']} days)"
+
+    slack_token = slack_sender.get_token()
+    if slack_token:
+        logging.info("Sending to Slack")
+        slack_sender.send_image("/tmp/image.png", os.environ["SLACK_TARGET_CHANNEL"], slack_token)
+
+    discord_webhook = discord_sender.get_webhook_url()
+    if discord_webhook:
+        logging.info("Sending to Discord")
+        discord_sender.send_image("/tmp/image.png", discord_webhook, title)
