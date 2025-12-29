@@ -1,7 +1,7 @@
 import os
 
 import boto3
-import slack
+from slack_sdk import WebClient
 
 
 def get_token() -> str:
@@ -13,6 +13,10 @@ def get_token() -> str:
     )["Parameter"]["Value"]
 
 
-def send_image(filename: str, slack_channel: str) -> None:
-    slacker = slack.WebClient(token=get_token())
-    slacker.files_upload(channels=slack_channel, file=filename, title="Cost report")
+def send_image(filename: str, channel_id: str) -> None:
+    slacker = WebClient(token=get_token())
+    slacker.files_upload_v2(
+        channel=channel_id,
+        file=filename,
+        title="Cost report"
+    )

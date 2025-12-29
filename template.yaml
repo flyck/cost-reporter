@@ -28,8 +28,7 @@ Parameters:
     Description: "Whether to only notify if cost increased within the last day"
   TargetChannel:
     Type: String
-    Default: "#ohtru"
-    Description: "The target slack channel"
+    Description: "The target Slack channel ID (e.g., C1234567890)"
 
 
 #-----------------------------------------------------
